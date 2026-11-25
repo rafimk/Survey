@@ -26,7 +26,8 @@ Test: `dotnet test Survey.slnx`.
 | `EnableWindowsAuthentication: true` | `Authentication:Mode = "window"` |
 | env `FeatureFlags__EnableWindowsAuthentication` | env `Authentication__Mode` |
 
-Also changed in `survey.json`: `messages.submissionSuccess` was replaced by `submissionSaved`, `submissionCompleted` and
+Also changed in `survey.json` (now `version` 2): `interests` and `services` became `radioGroup` elements and `full-name` a
+`textarea` (see section 5); `messages.submissionSuccess` was replaced by `submissionSaved`, `submissionCompleted` and
 `submissionPersistenceFailure`, and a new `account` section holds the sign-in/out wording (all strings are required).
 
 ## 2. Settings (`appsettings.json`)
@@ -132,9 +133,12 @@ form session. A retry with identical answers returns success without a second ro
 id is refused. If a first attempt committed but the reply was lost *and* the user then edits answers before retrying,
 the retry is refused (failure message) rather than overwriting — a deliberate, safe choice; reload the form to start a new attempt.
 
-**Stored data** (`ResponseJson`, Unicode, stable ids): `{"interests":["technology"],"service-rating":{"service-quality":5,
-"data-accuracy":null},"full-name":"…","comments":""}`, plus `DefinitionSnapshotJson` (the survey definition used) and
-`SurveyVersion`, so history stays interpretable when survey.json changes. Identity columns are `NULL` for anonymous.
+**Stored data** (`ResponseJson`, Unicode, stable ids): `{"interests":"technology","services":null,"topics":["a","c"],
+"service-rating":{"service-quality":5,"data-accuracy":null},"full-name":"…","comments":""}` — radio groups are a scalar
+option value or `null`, checkbox groups an array, text/textarea a string — plus `DefinitionSnapshotJson` (the survey
+definition used) and `SurveyVersion`, so history stays interpretable when survey.json changes. Earlier rows are never
+rewritten: before `version` 2 the `interests` and `services` groups were checkbox groups and are stored as arrays; the
+snapshot of each row tells you which shape applies. Identity columns are `NULL` for anonymous.
 JSON in a single table was chosen because the survey is dynamic; reporting can use `OPENJSON`. Tokens, passwords and other
 claims are never stored. Response contents are never logged.
 
@@ -160,13 +164,18 @@ and the last valid version stays; with no valid file at startup the app does not
 | type | Properties |
 |---|---|
 | `label` | `text`, `alignment` (`start`/`center`/`end`), optional `color` (`#rgb`/`#rrggbb`), `fontWeight` (100–900) |
-| `checkboxGroup` | `label`, `options[{value,text}]`, `required`, `minSelections`, `maxSelections` |
+| `checkboxGroup` | `label`, `options[{value,text}]`, `required`, `minSelections`, `maxSelections` — multi-select chips, answer = array |
+| `radioGroup` | `label`, `options[{value,text}]`, `required` — single-select chips (native radios, one unique group name per element), answer = one value or `null`; `minSelections`/`maxSelections` are rejected |
 | `ratingMatrix` | `columns[{value:int,text}]`, `rows[{id,text}]`, `required`, `indexHeading`, `itemHeading` |
-| `text` / `textarea` | `label`, `placeholder`, `required`, `minLength`, `maxLength`, `pattern` |
+| `text` | `label`, `placeholder`, `required`, `minLength`, `maxLength`, `pattern` — single-line input |
+| `textarea` | same properties as `text` — multi-line, resizable vertically, every textarea starts at the same fixed 96px height and full width (a shared style, not configurable from JSON) |
+
+The shipped survey (`version` 2) uses `radioGroup` for `interests` and `services` and `textarea` for both `full-name` and
+`comments`. Bump `version` whenever an element's type or response shape changes, and keep element ids and option values stable.
 
 `validationMessage` = required rule, `ruleMessage` = length/pattern/selection rules. With `EnableFormValidation=false`
-survey rules and required indicators are off and partial responses are accepted; integrity checks (known option/row/column
-values, 4000-character cap) always run.
+survey rules and required indicators are off and partial responses are accepted; integrity checks always run: known
+option/row/column values, **a radio group can only ever hold one known option of its own list**, and the 4000-character cap.
 
 ## 6. Verification status
 
