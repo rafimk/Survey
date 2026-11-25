@@ -1,0 +1,239 @@
+@page "/"
+@using Microsoft.Extensions.Options
+@using SurveyApp.Components.Shared
+@using SurveyApp.Models
+@using SurveyApp.Options
+@using SurveyApp.Security
+@using SurveyApp.Services
+@implements IDisposable
+@inject ISurveyConfigurationService Configuration
+@inject ISurveySubmissionService Submissions
+@inject IOptionsMonitor<FeatureFlagsOptions> Flags
+@inject ICurrentUserAccessor CurrentUsers
+@inject ToastService Toasts
+@inject ILogger<Survey> Logger
+
+<PageTitle>@_survey.Header.Title</PageTitle>
+
+<main class="survey-page">
+    @if (_user is { Mode: AuthenticationMode.Keycloak, IsAuthenticated: true })
+    {
+        <div class="account-bar">
+            <span>@_survey.Account.SignedInAs <strong>@_user.UserName</strong></span>
+            <form method="post" action="auth/logout">
+                <AntiforgeryToken />
+                <button type="submit" class="link-button">@_survey.Account.SignOut</button>
+            </form>
+        </div>
+    }
+    <div class="survey-card">
+        <header class="survey-header">
+            @if (!string.IsNullOrWhiteSpace(_survey.Header.Logo))
+            {
+                <img src="@_survey.Header.Logo" alt="@_survey.Header.LogoAlt" width="100" height="100" class="survey-logo" />
+            }
+            <div class="survey-heading">
+                <h1>@_survey.Header.Title@if (!string.IsNullOrWhiteSpace(_survey.Header.Heading)){<br />@_survey.Header.Heading}</h1>
+                @if (!string.IsNullOrWhiteSpace(_survey.Header.Subtitle))
+                {
+                    <p class="subtitle">@_survey.Header.Subtitle</p>
+                }
+            </div>
+        </header>
+
+        <form @onsubmit="SubmitAsync" novalidate>
+            @foreach (var element in _survey.Elements)
+            {
+                var error = ErrorFor(element);
+
+                switch (element.Type)
+                {
+                    case SurveyElementTypes.Label:
+                        <p @key="element.Id" class="item text-item align-@(element.Alignment ?? "start")" style="@LabelStyle(element)">@element.Text</p>
+                        break;
+
+                    case SurveyElementTypes.CheckboxGroup:
+                        <div @key="element.Id" class="item">
+                            <span class="field-label" id="lbl-@element.Id">@element.Label@RequiredMark(element)</span>
+                            <CheckboxGroup Options="element.Options" Selected="_answers.Choices[element.Id]" LabelledBy="@($"lbl-{element.Id}")" />
+                            <FieldError Message="@error" />
+                        </div>
+                        break;
+
+                    case SurveyElementTypes.RadioGroup:
+                        <div @key="element.Id" class="item">
+                            <span class="field-label" id="lbl-@element.Id">@element.Label@RequiredMark(element)</span>
+                            <RadioGroup Options="element.Options"
+                                        Name="@($"rg-{element.Id}")"
+                                        @bind-Value="_answers.Selections[element.Id]"
+                                        LabelledBy="@($"lbl-{element.Id}")" />
+                            <FieldError Message="@error" />
+                        </div>
+                        break;
+                    case SurveyElementTypes.RatingMatrix:
+                        <div @key="element.Id" class="item">
+                            <RatingMatrix ElementId="@element.Id"
+                                          Rows="element.Rows"
+                                          Columns="element.Columns"
+                                          Values="_answers.Ratings[element.Id]"
+                                          IndexHeading="@element.IndexHeading"
+                                          ItemHeading="@element.ItemHeading"
+                                          HighlightUnanswered="@(error is not null)" />
+                            <FieldError Message="@error" />
+                        </div>
+                        break;
+
+                    case SurveyElementTypes.Text:
+                        <div @key="element.Id" class="item">
+                            <label class="field-label" for="el-@element.Id">@element.Label@RequiredMark(element)</label>
+                            <input id="el-@element.Id" type="text" class="input @(error is not null ? "invalid" : null)"
+                                   placeholder="@element.Placeholder" maxlength="@MaxLength(element)"
+                                   aria-required="@(IsRequired(element) ? "true" : null)"
+                                   aria-invalid="@(error is not null ? "true" : null)"
+                                   @bind="_answers.Texts[element.Id]" />
+                            <FieldError Message="@error" />
+                        </div>
+                        break;
+
+                    case SurveyElementTypes.TextArea:
+                        <div @key="element.Id" class="item">
+                            <label class="field-label" for="el-@element.Id">@element.Label@RequiredMark(element)</label>
+                            <textarea id="el-@element.Id" rows="3" class="input @(error is not null ? "invalid" : null)"
+                                      placeholder="@element.Placeholder" maxlength="@MaxLength(element)"
+                                      aria-required="@(IsRequired(element) ? "true" : null)"
+                                      aria-invalid="@(error is not null ? "true" : null)"
+                                      @bind="_answers.Texts[element.Id]"></textarea>
+                            <FieldError Message="@error" />
+                        </div>
+                        break;
+                }
+            }
+
+            @if (ShowSummary)
+            {
+                <div class="validation-summary" role="alert">@_survey.Messages.ValidationSummary</div>
+            }
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary" disabled="@_isSubmitting" aria-busy="@(_isSubmitting ? "true" : null)">
+                    @if (_isSubmitting)
+                    {
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <span>@_survey.Actions.Submit.LoadingText</span>
+                    }
+                    else
+                    {
+                        <span>@_survey.Actions.Submit.Text</span>
+                    }
+                </button>
+                <button type="button" class="btn btn-secondary" disabled="@_isSubmitting" @onclick="() => _showCancelConfirm = true">
+                    @_survey.Actions.Cancel.Text
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<ConfirmDialog Visible="_showCancelConfirm"
+               Title="@_survey.Actions.Cancel.ConfirmTitle"
+               Message="@_survey.Actions.Cancel.ConfirmMessage"
+               ConfirmText="@_survey.Actions.Cancel.ConfirmText"
+               CancelText="@_survey.Actions.Cancel.DismissText"
+               OnConfirm="ConfirmCancel"
+               OnCancel="() => _showCancelConfirm = false" />
+
+<ToastHost />
+
+@code {
+    private static readonly IReadOnlyDictionary<string, string> NoErrors = new Dictionary<string, string>();
+
+    // The definition is captured when the survey is opened and kept for the whole session.
+    private SurveyDefinition _survey = default!;
+    private SurveyAnswers _answers = default!;
+    private IReadOnlyDictionary<string, string> _errors = NoErrors;
+    private Guid _submissionId;                 // server-issued per attempt; reused on retries so a retry cannot duplicate a record
+    private CurrentUser? _user;
+    private bool _isSubmitting;
+    private bool _showCancelConfirm;
+    private IDisposable? _flagsSubscription;
+
+    private bool ValidationEnabled => Flags.CurrentValue.EnableFormValidation;
+    private bool ShowSummary => ValidationEnabled && _errors.Count > 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _user = await CurrentUsers.GetAsync();
+        StartNewSession();
+        _flagsSubscription = Flags.OnChange(_ => InvokeAsync(StateHasChanged));
+    }
+
+    private void StartNewSession()
+    {
+        _survey = Configuration.Current;
+        _answers = SurveyAnswers.Create(_survey);
+        _submissionId = Guid.NewGuid();
+        _errors = NoErrors;
+    }
+
+    private bool IsRequired(SurveyElementDefinition element) => element.Required && ValidationEnabled;
+
+    private string? ErrorFor(SurveyElementDefinition element) =>
+        ValidationEnabled && _errors.TryGetValue(element.Id, out var message) ? message : null;
+
+    private MarkupString RequiredMark(SurveyElementDefinition element) =>
+        IsRequired(element)
+            ? new MarkupString($"<span class=\"required\" aria-hidden=\"true\">{System.Net.WebUtility.HtmlEncode(_survey.RequiredIndicator)}</span>")
+            : default;
+
+    private int MaxLength(SurveyElementDefinition element) =>
+        ValidationEnabled && element.MaxLength is { } max ? max : SurveyLimits.MaxTextLength;
+
+    // color / fontWeight are validated against strict patterns when the configuration is loaded.
+    private static string? LabelStyle(SurveyElementDefinition element)
+    {
+        var style = "";
+        if (element.Color is not null) style += $"color:{element.Color};";
+        if (element.FontWeight is not null) style += $"font-weight:{element.FontWeight};";
+        return style.Length == 0 ? null : style;
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (_isSubmitting) return;
+        _isSubmitting = true;
+
+        try
+        {
+            var user = await CurrentUsers.GetAsync();
+            var result = await Submissions.SubmitAsync(_survey, _answers, _submissionId, user);
+
+            if (result.Succeeded)
+            {
+                Toasts.Success(result.Message);
+                StartNewSession();
+            }
+            else
+            {
+                _errors = result.Errors;
+                if (!ShowSummary) Toasts.Error(result.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Survey submission failed.");
+            Toasts.Error(_survey.Messages.SubmissionFailure);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void ConfirmCancel()
+    {
+        _showCancelConfirm = false;
+        StartNewSession();
+    }
+
+    public void Dispose() => _flagsSubscription?.Dispose();
+}

@@ -1,0 +1,11 @@
+.status-page { display: grid; place-items: center; min-height: 60vh; padding: var(--survey-space-4) var(--survey-space-2); }
+
+.status-card {
+    width: min(480px, 100%); padding: var(--survey-space-4); text-align: center;
+    background: var(--survey-surface);
+    border: 1px solid var(--survey-border); border-radius: var(--survey-radius-lg);
+    box-shadow: var(--survey-shadow);
+}
+.status-card h1 { margin: 0 0 var(--survey-space-1); font-size: 20px; font-weight: 600; }
+.status-card p { margin: 0 0 var(--survey-space-3); color: var(--survey-text-secondary); }
+.status-card .btn { text-decoration: none; }

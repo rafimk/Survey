@@ -1,0 +1,27 @@
+@using SurveyApp.Models
+
+<div class="chips" role="group" aria-labelledby="@LabelledBy">
+    @foreach (var option in Options)
+    {
+        var isSelected = Selected.Contains(option.Value);
+        <label class="chip @(isSelected ? "selected" : null)">
+            <input type="checkbox"
+                   checked="@isSelected"
+                   @onchange="e => Toggle(option.Value, (bool)(e.Value ?? false))" />
+            <span class="chip-mark" aria-hidden="true"></span>
+            <span>@option.Text</span>
+        </label>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<SurveyOptionDefinition> Options { get; set; } = [];
+    [Parameter, EditorRequired] public ISet<string> Selected { get; set; } = default!;
+    [Parameter] public string? LabelledBy { get; set; }
+
+    private void Toggle(string value, bool isChecked)
+    {
+        if (isChecked) Selected.Add(value);
+        else Selected.Remove(value);
+    }
+}

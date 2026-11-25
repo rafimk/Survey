@@ -1,0 +1,96 @@
+@using SurveyApp.Models
+
+@* Desktop: table matrix. Mobile: one compact card per row. Both edit the same Values dictionary. *@
+
+<div class="matrix-table">
+    <table>
+        <thead>
+            <tr>
+                @if (IndexHeading is not null)
+                {
+                    <th scope="col" class="col-num">@IndexHeading</th>
+                }
+                <th scope="col" class="col-title">@ItemHeading</th>
+                @foreach (var column in Columns)
+                {
+                    <th scope="col">@column.Text</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @for (var i = 0; i < Rows.Count; i++)
+            {
+                var row = Rows[i];
+                <tr @key="row.Id" class="@(IsUnanswered(row) ? "unanswered" : null)">
+                    @if (IndexHeading is not null)
+                    {
+                        <td class="col-num">@(i + 1)</td>
+                    }
+                    <th scope="row" class="col-title">@row.Text</th>
+                    @foreach (var column in Columns)
+                    {
+                        var isSelected = IsSelected(row, column);
+                        <td class="@(isSelected ? "selected" : null)">
+                            <label class="hit">
+                                <input type="radio"
+                                       name="@($"{ElementId}-t-{row.Id}")"
+                                       checked="@isSelected"
+                                       aria-label="@($"{row.Text}: {column.Text}")"
+                                       @onchange="() => Select(row, column)" />
+                            </label>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="matrix-cards">
+    @for (var i = 0; i < Rows.Count; i++)
+    {
+        var row = Rows[i];
+        <fieldset @key="row.Id" class="card @(IsUnanswered(row) ? "unanswered" : null)">
+            <legend>
+                @if (IndexHeading is not null)
+                {
+                    <span class="card-num">@(i + 1)</span>
+                }
+                @row.Text
+            </legend>
+            <div class="card-options">
+                @foreach (var column in Columns)
+                {
+                    var isSelected = IsSelected(row, column);
+                    <label class="option @(isSelected ? "selected" : null)">
+                        <input type="radio"
+                               name="@($"{ElementId}-c-{row.Id}")"
+                               checked="@isSelected"
+                               @onchange="() => Select(row, column)" />
+                        <span>@column.Text</span>
+                    </label>
+                }
+            </div>
+        </fieldset>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string ElementId { get; set; } = "";
+    [Parameter, EditorRequired] public IReadOnlyList<SurveyRowDefinition> Rows { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyList<SurveyColumnDefinition> Columns { get; set; } = [];
+    [Parameter, EditorRequired] public IDictionary<string, int?> Values { get; set; } = default!;
+    [Parameter] public string? IndexHeading { get; set; }
+    [Parameter] public string? ItemHeading { get; set; }
+
+    /// <summary>When true (after a failed validation), rows without an answer are highlighted.</summary>
+    [Parameter] public bool HighlightUnanswered { get; set; }
+
+    private bool IsSelected(SurveyRowDefinition row, SurveyColumnDefinition column) =>
+        Values.TryGetValue(row.Id, out var v) && v == column.Value;
+
+    private bool IsUnanswered(SurveyRowDefinition row) =>
+        HighlightUnanswered && (!Values.TryGetValue(row.Id, out var v) || v is null);
+
+    private void Select(SurveyRowDefinition row, SurveyColumnDefinition column) => Values[row.Id] = column.Value;
+}

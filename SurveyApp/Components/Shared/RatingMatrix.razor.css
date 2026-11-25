@@ -1,0 +1,85 @@
+﻿/* ---------- Desktop matrix ---------- */
+.matrix-table {
+    border: 1px solid var(--survey-border);
+    border-radius: var(--survey-radius-lg);
+    overflow: hidden;
+}
+
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+
+thead th {
+    padding: 0.75rem 0.5rem;
+    font-size: 14px; font-weight: 600; text-align: center;
+    color: var(--survey-text-secondary);
+    background: var(--survey-primary-soft);
+    border-bottom: 1px solid var(--survey-border);
+}
+
+tbody tr { height: 56px; border-bottom: 1px solid var(--survey-border); transition: background .15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:nth-child(even) { background: var(--survey-background); }
+tbody tr:hover { background: #f1f5f9; }
+tbody tr.unanswered { background: var(--survey-danger-soft); }
+tbody tr.unanswered .col-title { color: var(--survey-danger); }
+
+td, tbody th { padding: 0; text-align: center; font-weight: 400; }
+.col-num { width: 56px; color: var(--survey-text-muted); }
+thead .col-title, tbody .col-title { width: 32%; padding-inline: 0.75rem; text-align: start; }
+tbody .col-title { font-weight: 500; }
+
+td.selected { background: var(--survey-primary-soft); }
+
+/* The whole cell is the click target. */
+.hit { display: flex; align-items: center; justify-content: center; width: 100%; height: 56px; cursor: pointer; }
+
+.hit input[type="radio"],
+.option input[type="radio"] {
+    appearance: none; -webkit-appearance: none;
+    flex: none; width: 20px; height: 20px; margin: 0;
+    background: var(--survey-surface);
+    border: 2px solid #cbd5e1; border-radius: 50%;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+}
+.hit:hover input[type="radio"],
+.option:hover input[type="radio"] { border-color: var(--survey-primary); }
+.hit input[type="radio"]:checked,
+.option input[type="radio"]:checked {
+    border-color: var(--survey-primary);
+    box-shadow: inset 0 0 0 4px var(--survey-surface);
+    background: var(--survey-primary);
+}
+.hit input[type="radio"]:focus-visible,
+.option input[type="radio"]:focus-visible { outline: none; box-shadow: var(--survey-focus-ring); }
+.hit input[type="radio"]:checked:focus-visible,
+.option input[type="radio"]:checked:focus-visible { box-shadow: inset 0 0 0 4px var(--survey-surface), var(--survey-focus-ring); }
+
+/* ---------- Mobile cards ---------- */
+.matrix-cards { display: none; flex-direction: column; gap: var(--survey-space-1); }
+
+.card {
+    min-width: 0; margin: 0; padding: 0.75rem;
+    border: 1px solid var(--survey-border); border-radius: var(--survey-radius-md);
+    background: var(--survey-surface);
+}
+.card.unanswered { border-color: var(--survey-danger); background: var(--survey-danger-soft); }
+.card legend { padding-inline: 0.25rem; font-weight: 500; }
+.card-num { color: var(--survey-text-muted); margin-inline-end: 0.25rem; }
+
+.card-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 0.5rem; margin-top: 0.25rem; }
+
+.option {
+    display: flex; align-items: center; gap: 0.5rem;
+    min-height: 44px; padding: 0 0.75rem;
+    font-size: 14px; color: var(--survey-text-secondary);
+    background: var(--survey-input-background);
+    border: 1px solid var(--survey-border); border-radius: var(--survey-radius-sm);
+    cursor: pointer; transition: background .15s, border-color .15s;
+}
+.option.selected { background: var(--survey-primary-soft); border-color: var(--survey-primary); color: var(--survey-primary-hover); font-weight: 500; }
+
+@media (max-width: 767.98px) {
+    .matrix-table { display: none; }
+    .matrix-cards { display: flex; }
+}
+

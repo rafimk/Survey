@@ -1,0 +1,9 @@
+﻿@page "/not-found"
+@layout MainLayout
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@using Microsoft.AspNetCore.Authorization
+@inject SurveyApp.Services.ISurveyConfigurationService Configuration
+
+<h3>@Configuration.Current.SystemText.NotFoundTitle</h3>
+<p>@Configuration.Current.SystemText.NotFoundText</p>

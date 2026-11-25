@@ -1,0 +1,38 @@
+@page "/auth/{Kind}"
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@using Microsoft.AspNetCore.Authorization
+@inject SurveyApp.Services.ISurveyConfigurationService Configuration
+
+@* Public pages (no authentication needed): sign-in failure and signed-out confirmation. *@
+
+<PageTitle>@Survey.Header.Title</PageTitle>
+
+<main class="status-page">
+    <div class="status-card">
+        @switch (Kind)
+        {
+            case "error":
+                <h1>@Survey.SystemText.ErrorTitle</h1>
+                <p>@Survey.Account.SignInFailed</p>
+                <a class="btn btn-primary" href="./">@Survey.Account.SignIn</a>
+                break;
+
+            case "signed-out":
+                <h1>@Survey.Account.SignedOut</h1>
+                <a class="btn btn-primary" href="./">@Survey.Account.SignIn</a>
+                break;
+
+            default:
+                <h1>@Survey.SystemText.NotFoundTitle</h1>
+                <p>@Survey.SystemText.NotFoundText</p>
+                break;
+        }
+    </div>
+</main>
+
+@code {
+    [Parameter] public string? Kind { get; set; }
+
+    private SurveyApp.Models.SurveyDefinition Survey => Configuration.Current;
+}

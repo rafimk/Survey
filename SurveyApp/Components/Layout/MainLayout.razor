@@ -1,0 +1,10 @@
+﻿@inherits LayoutComponentBase
+@inject SurveyApp.Services.ISurveyConfigurationService Configuration
+
+@Body
+
+<div id="blazor-error-ui" data-nosnippet>
+    @Configuration.Current.SystemText.UnhandledError
+    <a href="." class="reload">@Configuration.Current.SystemText.Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

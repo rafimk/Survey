@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SurveyApp.Tests/SurveyApp.Tests.csproj" />
+  <Project Path="SurveyApp/SurveyApp.csproj" />
+</Solution>

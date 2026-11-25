@@ -1,0 +1,53 @@
+.survey-page { padding: var(--survey-space-4) var(--survey-space-2) 4rem; }
+
+.survey-card {
+    max-width: 1100px; margin-inline: auto;
+    padding: var(--survey-space-4) clamp(1rem, 4vw, 2.5rem);
+    background: var(--survey-surface);
+    border: 1px solid var(--survey-border); border-radius: var(--survey-radius-lg);
+    box-shadow: var(--survey-shadow);
+}
+
+/* Header: logo | title (truly centered) | empty balancing column */
+.survey-header {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    column-gap: var(--survey-space-2);
+    margin-bottom: var(--survey-space-3); padding-bottom: var(--survey-space-3);
+    border-bottom: 1px solid var(--survey-border);
+}
+.survey-logo { grid-column: 1; justify-self: start; display: block; width: 100px; height: 100px; }
+.survey-heading { grid-column: 2; text-align: center; }
+.survey-heading h1 { margin: 0; font-size: 30px; font-weight: 700; line-height: 1.5; }
+.subtitle { margin: var(--survey-space-1) 0 0; font-size: 15px; color: var(--survey-text-muted); }
+
+/* Body items: each configured item flows in order, right-aligned (start in RTL). */
+.item { margin: 0 0 var(--survey-space-3); text-align: start; }
+.text-item { color: var(--survey-text-secondary); }
+.field-label { display: block; margin-bottom: var(--survey-space-1); font-weight: 500; }
+
+.align-start { text-align: start; }
+.align-center { text-align: center; }
+.align-end { text-align: end; }
+
+.validation-summary { margin-bottom: var(--survey-space-2); padding: 0.75rem 1rem; color: var(--survey-danger); background: var(--survey-danger-soft); border: 1px solid #fecaca; border-radius: var(--survey-radius-md); font-size: 14px; }
+
+.actions { display: flex; justify-content: center; gap: 0.75rem; margin-top: var(--survey-space-3); }
+
+@media (max-width: 767.98px) {
+    .survey-header { grid-template-columns: 1fr; row-gap: var(--survey-space-2); justify-items: center; }
+    .survey-logo, .survey-heading { grid-column: 1; justify-self: center; }
+    .survey-heading h1 { font-size: 26px; }
+}
+@media (max-width: 480px) {
+    .actions { flex-direction: column-reverse; }
+    .actions .btn { width: 100%; }
+}
+
+.account-bar {
+    display: flex; justify-content: space-between; align-items: center; gap: var(--survey-space-2);
+    max-width: 1100px; margin: 0 auto var(--survey-space-1); padding-inline: var(--survey-space-1);
+    font-size: 14px; color: var(--survey-text-secondary);
+}
+.account-bar form { margin: 0; }
+.link-button { padding: 0.25rem 0.5rem; font: inherit; color: var(--survey-primary); background: none; border: none; border-radius: var(--survey-radius-sm); cursor: pointer; }
+.link-button:hover { background: var(--survey-primary-soft); }

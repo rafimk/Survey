@@ -1,0 +1,155 @@
+{
+  "surveyId": "service-evaluation",
+  "version": 2,
+  "language": "ar",
+  "direction": "rtl",
+  "requiredIndicator": "*",
+  "header": {
+    "logo": "logo.svg",
+    "logoAlt": "الشعار",
+    "title": "استبيان",
+    "heading": "نموذج التقديم",
+    "subtitle": "عنوان فرعي تجريبي"
+  },
+  "elements": [
+    {
+      "id": "introduction",
+      "type": "label",
+      "text": "نص تعريفي تجريبي يوضح الهدف من هذا الاستبيان وكيفية تعبئته.",
+      "alignment": "start"
+    },
+    {
+      "id": "interests",
+      "type": "radioGroup",
+      "label": "المجالات التي تهمك",
+      "required": false,
+      "options": [
+        { "value": "technology", "text": "التقنية" },
+        { "value": "education", "text": "التعليم" },
+        { "value": "health", "text": "الصحة" }
+      ]
+    },
+    {
+      "id": "rating-instructions",
+      "type": "label",
+      "text": "يرجى تقييم البنود التالية بحسب رأيك.",
+      "alignment": "start"
+    },
+    {
+      "id": "service-rating",
+      "type": "ratingMatrix",
+      "required": true,
+      "indexHeading": "م",
+      "itemHeading": "البند",
+      "columns": [
+        { "value": 1, "text": "ضعيف جداً" },
+        { "value": 2, "text": "ضعيف" },
+        { "value": 3, "text": "متوسط" },
+        { "value": 4, "text": "جيد" },
+        { "value": 5, "text": "ممتاز" }
+      ],
+      "rows": [
+        { "id": "service-quality", "text": "جودة الخدمة المقدمة" },
+        { "id": "response-speed", "text": "سرعة الاستجابة" },
+        { "id": "ease-of-use", "text": "سهولة استخدام النموذج" },
+        { "id": "information-clarity", "text": "وضوح المعلومات" },
+        { "id": "team-professionalism", "text": "احترافية فريق العمل" },
+        { "id": "ease-of-contact", "text": "سهولة التواصل" },
+        { "id": "data-accuracy", "text": "دقة البيانات" },
+        { "id": "service-variety", "text": "تنوع الخدمات" },
+        { "id": "value-for-cost", "text": "القيمة مقابل التكلفة" },
+        { "id": "overall-satisfaction", "text": "الرضا العام" }
+      ],
+      "validationMessage": "يرجى تقييم جميع البنود المطلوبة."
+    },
+    {
+      "id": "rating-note",
+      "type": "label",
+      "text": "ملاحظة: جميع بنود التقييم أعلاه مطلوبة.",
+      "alignment": "start"
+    },
+    {
+      "id": "services",
+      "type": "radioGroup",
+      "label": "الخدمات التي استفدت منها",
+      "required": false,
+      "options": [
+        { "value": "technical-support", "text": "الدعم الفني" },
+        { "value": "consulting", "text": "الاستشارات" },
+        { "value": "training", "text": "التدريب" },
+        { "value": "development", "text": "التطوير" },
+        { "value": "maintenance", "text": "الصيانة" }
+      ]
+    },
+    {
+      "id": "full-name",
+      "type": "textarea",
+      "label": "الاسم الكامل",
+      "placeholder": "أدخل الاسم الكامل",
+      "required": true,
+      "maxLength": 100,
+      "validationMessage": "يرجى إدخال الاسم الكامل.",
+      "ruleMessage": "يجب ألا يتجاوز الاسم 100 حرف."
+    },
+    {
+      "id": "comments",
+      "type": "textarea",
+      "label": "ملاحظات إضافية",
+      "placeholder": "اكتب ملاحظاتك هنا",
+      "required": false,
+      "maxLength": 500,
+      "ruleMessage": "يجب ألا تتجاوز الملاحظات 500 حرف."
+    },
+    {
+      "id": "thank-you",
+      "type": "label",
+      "text": "شكراً لمشاركتكم، نقدّر وقتكم وآراءكم.",
+      "alignment": "center",
+      "color": "#dc2626",
+      "fontWeight": 600
+    }
+  ],
+  "actions": {
+    "submit": { "text": "إرسال", "loadingText": "جارٍ الإرسال..." },
+    "cancel": {
+      "text": "إلغاء",
+      "confirmTitle": "تأكيد الإلغاء",
+      "confirmMessage": "هل أنت متأكد من إلغاء الاستبيان؟ سيتم مسح جميع الإجابات.",
+      "confirmText": "نعم، إلغاء",
+      "dismissText": "متابعة التعبئة"
+    }
+  },
+  "messages": {
+    "submissionSaved": "تم إرسال الاستبيان وحفظه بنجاح. شكراً لك!",
+    "submissionCompleted": "تم استلام الاستبيان بنجاح. شكراً لك!",
+    "submissionPersistenceFailure": "تعذر حفظ الاستبيان. تم الاحتفاظ بإجاباتك، يرجى المحاولة مرة أخرى.",
+    "submissionFailure": "تعذر إرسال الاستبيان. يرجى المحاولة مرة أخرى.",
+    "validationSummary": "يرجى استكمال الحقول المطلوبة.",
+    "authenticationRequired": "يرجى تسجيل الدخول.",
+    "accessDenied": "ليس لديك صلاحية الوصول."
+  },
+  "account": {
+    "signedInAs": "مسجل الدخول باسم",
+    "signOut": "تسجيل الخروج",
+    "signedOut": "تم تسجيل خروجك بنجاح.",
+    "signIn": "تسجيل الدخول",
+    "signInFailed": "تعذر تسجيل الدخول عبر مزود الهوية. يرجى المحاولة مرة أخرى لاحقاً."
+  },
+  "systemText": {
+    "reconnecting": "جارٍ إعادة الاتصال بالخادم...",
+    "reconnectRepeatedBefore": "فشلت إعادة الاتصال... ستتم المحاولة مجدداً خلال",
+    "reconnectRepeatedAfter": "ثانية.",
+    "reconnectFailed": "تعذرت إعادة الاتصال. يرجى إعادة المحاولة أو تحديث الصفحة.",
+    "retry": "إعادة المحاولة",
+    "sessionPaused": "تم إيقاف الجلسة مؤقتاً من قبل الخادم.",
+    "resumeFailed": "تعذر استئناف الجلسة. يرجى إعادة المحاولة أو تحديث الصفحة.",
+    "resume": "استئناف",
+    "unhandledError": "حدث خطأ غير متوقع.",
+    "reload": "تحديث",
+    "notFoundTitle": "الصفحة غير موجودة",
+    "notFoundText": "عذراً، المحتوى الذي تبحث عنه غير موجود.",
+    "errorTitle": "حدث خطأ.",
+    "errorText": "حدث خطأ أثناء معالجة طلبك.",
+    "requestId": "معرّف الطلب:"
+  }
+}

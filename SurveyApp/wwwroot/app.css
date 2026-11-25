@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Design tokens + shared primitives (inputs, buttons, validation).
+   Component-specific styles live in the *.razor.css files next to each component.
+   Fonts: only locally installed fonts are used (no CDN / internet dependency).
+   ========================================================================== */
+
+:root {
+    --survey-primary: #4f46e5;
+    --survey-primary-hover: #4338ca;
+    --survey-primary-soft: #eef2ff;
+    --survey-background: #f8fafc;
+    --survey-surface: #ffffff;
+    --survey-text: #0f172a;
+    --survey-text-secondary: #475569;
+    --survey-text-muted: #64748b;
+    --survey-border: #e2e8f0;
+    --survey-input-background: #f8fafc;
+    --survey-success: #16a34a;
+    --survey-danger: #dc2626;
+    --survey-danger-soft: #fef2f2;
+    --survey-radius-sm: 8px;
+    --survey-radius-md: 12px;
+    --survey-radius-lg: 16px;
+    --survey-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    --survey-focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.25);
+
+    /* 8px spacing scale */
+    --survey-space-1: 0.5rem;
+    --survey-space-2: 1rem;
+    --survey-space-3: 1.5rem;
+    --survey-space-4: 2rem;
+
+    --survey-font: "IBM Plex Sans Arabic", "Tajawal", "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    font-family: var(--survey-font);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--survey-text);
+    background: var(--survey-background);
+    min-height: 100vh;
+}
+
+h1:focus { outline: none; }
+
+:focus-visible { outline: 2px solid var(--survey-primary); outline-offset: 2px; }
+
+/* ---- Inputs ---- */
+.input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0.5rem 0.875rem;
+    font: inherit;
+    color: var(--survey-text);
+    text-align: start;
+    background: var(--survey-input-background);
+    border: 1px solid var(--survey-border);
+    border-radius: var(--survey-radius-md);
+    transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.input::placeholder { color: var(--survey-text-muted); text-align: start; }
+.input:hover { border-color: #cbd5e1; }
+.input:focus { outline: none; border-color: var(--survey-primary); box-shadow: var(--survey-focus-ring); background: var(--survey-surface); }
+textarea.input { resize: vertical; height: 96px; min-height: 96px; line-height: 1.7; vertical-align: top; }
+.input.invalid { border-color: var(--survey-danger); background: var(--survey-danger-soft); }
+.input.invalid:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, .2); }
+
+/* ---- Validation ---- */
+.validation-message { margin: 0; color: var(--survey-danger); font-size: 13px; }
+.validation-errors { margin: 0; padding-inline-start: 1.25rem; color: var(--survey-danger); font-size: 14px; }
+
+/* ---- Buttons ---- */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--survey-space-1);
+    min-width: 132px; min-height: 44px; padding: 0 1.5rem;
+    font: inherit; font-weight: 500;
+    border: 1px solid transparent; border-radius: var(--survey-radius-md);
+    cursor: pointer;
+    transition: background .15s, border-color .15s, transform .05s, box-shadow .15s;
+}
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.btn-primary { background: var(--survey-primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--survey-primary-hover); }
+.btn-secondary { background: var(--survey-surface); color: var(--survey-text-secondary); border-color: var(--survey-border); }
+.btn-secondary:hover:not(:disabled) { background: var(--survey-background); border-color: #cbd5e1; }
+.btn-danger { background: var(--survey-danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #b91c1c; }
+
+.btn-spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .4); border-top-color: #fff;
+    animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+}
+
+/* Required indicator is emitted as raw markup, so it cannot use scoped CSS. */
+.required { margin-inline-start: 0.25rem; color: var(--survey-danger); }
+
+/* ---- Selectable chips (shared by checkbox and radio groups) ---- */
+.chips { display: flex; flex-wrap: wrap; gap: var(--survey-space-1); }
+
+.chip {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    min-height: 40px; padding: 0 1rem;
+    color: var(--survey-text-secondary);
+    background: var(--survey-input-background);
+    border: 1px solid var(--survey-border);
+    border-radius: var(--survey-radius-md);
+    cursor: pointer; user-select: none;
+    transition: background .15s, border-color .15s, color .15s;
+}
+.chip:hover { border-color: #cbd5e1; background: var(--survey-surface); }
+.chip.selected { color: var(--survey-primary-hover); font-weight: 500; background: var(--survey-primary-soft); border-color: var(--survey-primary); }
+.chip:has(input:focus-visible) { box-shadow: var(--survey-focus-ring); border-color: var(--survey-primary); }
+
+/* Native checkbox stays in the DOM for keyboard + screen readers, but is visually replaced. */
+.chip input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+
+.chip-mark {
+    position: relative; flex: none; width: 18px; height: 18px;
+    border: 1.5px solid #cbd5e1; border-radius: 5px; background: var(--survey-surface);
+    transition: background .15s, border-color .15s;
+}
+.chip.selected .chip-mark { background: var(--survey-primary); border-color: var(--survey-primary); }
+.chip.selected .chip-mark::after {
+    content: ""; position: absolute; top: 2px; inset-inline-start: 5px;
+    width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+
+/* Radio variant: circular indicator with an inner dot instead of a checkmark. */
+.chip-mark.round { border-radius: 50%; }
+.chip.selected .chip-mark.round::after {
+    top: 3px; inset-inline-start: 3px; width: 8px; height: 8px;
+    border: 0; border-radius: 50%; background: #fff; transform: none;
+}

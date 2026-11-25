@@ -1,0 +1,31 @@
+﻿@using SurveyApp.Models
+
+<div class="chips" role="radiogroup" aria-labelledby="@LabelledBy">
+    @foreach (var option in Options)
+    {
+        var isSelected = Value == option.Value;
+        <label class="chip @(isSelected ? "selected" : null)">
+            <input type="radio"
+                   name="@Name"
+                   value="@option.Value"
+                   checked="@isSelected"
+                   @onchange="() => Select(option.Value)" />
+            <span class="chip-mark round" aria-hidden="true"></span>
+            <span>@option.Text</span>
+        </label>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<SurveyOptionDefinition> Options { get; set; } = [];
+
+    /// <summary>Unique per group so groups never deselect each other.</summary>
+    [Parameter, EditorRequired] public string Name { get; set; } = "";
+
+    /// <summary>The single selected option value, or null.</summary>
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string? LabelledBy { get; set; }
+
+    private Task Select(string value) => ValueChanged.InvokeAsync(value);
+}

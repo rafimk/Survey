@@ -1,0 +1,49 @@
+@using SurveyApp.Services
+@implements IDisposable
+@inject ToastService Toasts
+
+<div class="toast-host" aria-live="polite">
+    @foreach (var toast in _toasts)
+    {
+        <div class="toast-item toast-@toast.Kind.ToString().ToLowerInvariant()" role="status" @key="toast.Id">
+            <span class="toast-icon" aria-hidden="true">@(toast.Kind == ToastKind.Success ? "✓" : "!")</span>
+            <span>@toast.Text</span>
+            <button type="button" class="toast-close" aria-label="إغلاق" @onclick="() => Remove(toast.Id)">×</button>
+        </div>
+    }
+</div>
+
+@code {
+    private const int DisplayMilliseconds = 4000;
+
+    private readonly List<ToastMessage> _toasts = [];
+    private bool _disposed;
+
+    protected override void OnInitialized() => Toasts.OnShow += HandleShow;
+
+    private void HandleShow(ToastMessage toast) => _ = InvokeAsync(async () =>
+    {
+        _toasts.Add(toast);
+        StateHasChanged();
+
+        await Task.Delay(DisplayMilliseconds);
+        if (!_disposed)
+        {
+            Remove(toast.Id);
+        }
+    });
+
+    private void Remove(Guid id)
+    {
+        if (_toasts.RemoveAll(t => t.Id == id) > 0)
+        {
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        Toasts.OnShow -= HandleShow;
+    }
+}

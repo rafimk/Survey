@@ -1,0 +1,23 @@
+@if (Visible)
+{
+    <div class="dialog-backdrop" @onclick="OnCancel">
+        <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" @onclick:stopPropagation>
+            <h2 id="dlg-title">@Title</h2>
+            <p>@Message</p>
+            <div class="dialog-actions">
+                <button type="button" class="btn btn-danger" @onclick="OnConfirm">@ConfirmText</button>
+                <button type="button" class="btn btn-secondary" @onclick="OnCancel">@CancelText</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public string Title { get; set; } = "تأكيد";
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string ConfirmText { get; set; } = "نعم";
+    [Parameter] public string CancelText { get; set; } = "لا";
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+}

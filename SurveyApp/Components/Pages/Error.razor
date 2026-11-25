@@ -1,0 +1,27 @@
+﻿@page "/Error"
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@using Microsoft.AspNetCore.Authorization
+@using System.Diagnostics
+@inject SurveyApp.Services.ISurveyConfigurationService Configuration
+
+<PageTitle>@Text.ErrorTitle</PageTitle>
+
+<h1>@Text.ErrorTitle</h1>
+<p>@Text.ErrorText</p>
+
+@if (!string.IsNullOrEmpty(RequestId))
+{
+    <p><strong>@Text.RequestId</strong> <code>@RequestId</code></p>
+}
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private SurveyApp.Models.SurveySystemTextDefinition Text => Configuration.Current.SystemText;
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}
